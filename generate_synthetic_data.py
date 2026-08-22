@@ -1,20 +1,6 @@
-"""
-Générateur de données synthétiques pour le projet de maintenance prédictive.
-
-Objectif : reproduire la STRUCTURE exacte de Table_analytique_ONCF_v1.xlsx
-(mêmes colonnes, mêmes types, mêmes ordres de grandeur), mais avec des
-valeurs entièrement inventées. Permet à n'importe qui de cloner ce repo
-et de faire tourner modele_maintenance_predictive.py sans jamais toucher
-aux vraies données ONCF (confidentielles, non incluses dans ce repo).
-
-Usage : python generate_synthetic_data.py
-Produit : data/synthetic/Table_analytique_synthetic.xlsx
-"""
-
 import numpy as np
 import pandas as pd
 from pathlib import Path
-
 np.random.seed(42)
 
 ENGINS = [f"TRR-{i:02d}" for i in range(1, 13)]
@@ -29,7 +15,6 @@ AGE_MISE_EN_SERVICE = {
 DATE_DEBUT = pd.Timestamp("2024-06-01")
 DATE_FIN = pd.Timestamp("2026-05-31")
 
-
 def month_to_saison(month: int) -> str:
     if month in (12, 1, 2):
         return "Hiver"
@@ -38,27 +23,21 @@ def month_to_saison(month: int) -> str:
     if month in (6, 7, 8):
         return "Ete"
     return "Automne"
-
-
+    
 def generate():
     dates = pd.date_range(DATE_DEBUT, DATE_FIN, freq="D")
     rows = []
-
     for engin in ENGINS:
         site = np.random.choice(SITES)
         mise_en_service = AGE_MISE_EN_SERVICE[engin]
-        base_panne_rate = np.random.uniform(0.01, 0.04)  # probabilité de panne/jour, fictive
-
+        base_panne_rate = np.random.uniform(0.01, 0.04)  
         heures_cumulees = np.random.uniform(2000, 6000)
         jours_depuis_panne = np.random.randint(0, 60)
-
         for date in dates:
             age_jours = (date - pd.Timestamp(f"{mise_en_service}-01-01")).days
-            heures_cumulees += np.random.uniform(3, 9)  # usage journalier fictif
-
+            heures_cumulees += np.random.uniform(3, 9)  
             panne_ce_jour = 1 if np.random.random() < base_panne_rate else 0
             jours_depuis_panne = 0 if panne_ce_jour else jours_depuis_panne + 1
-
             rows.append({
                 "Engin": engin,
                 "Date": date,
@@ -77,8 +56,6 @@ def generate():
             })
 
     df = pd.DataFrame(rows)
-
-    # Construction des variables cibles Y_horizon_Xj (fenêtre forward simplifiée)
     for horizon in [3, 7, 14, 30]:
         col = f"Y_horizon_{horizon}j"
         df[col] = np.nan
@@ -89,15 +66,11 @@ def generate():
             for i in range(len(sub) - horizon):
                 y[i] = 1 if sub[i + 1: i + 1 + horizon].sum() > 0 else 0
             df.loc[mask, col] = y
-
-    df["Iteration"] = 0  # colonne technique KNIME, conservée pour fidélité de structure
-
+    df["Iteration"] = 0 
     out_dir = Path("data/synthetic")
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / "Table_analytique_synthetic.xlsx"
     df.to_excel(out_path, index=False)
     print(f"Données synthétiques générées : {out_path} ({len(df)} lignes)")
-
-
 if __name__ == "__main__":
     generate()
