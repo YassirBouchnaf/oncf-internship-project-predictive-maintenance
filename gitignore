@@ -1,0 +1,31 @@
+# === DONNÉES CONFIDENTIELLES ONCF — NE JAMAIS COMMITTER ===
+# Fichiers sources réels (historique de pannes, heures diesel par site)
+Copy_of_Suivi_maintenance_PRINCIPAL.xlsx
+COPIE_LOCO.xlsx
+SUIVI_ERR.xlsx
+BDD_suivi_des_ERR_2026.xlsx
+Suivi_ERR_A02_2026.xlsx
+OPERATION_A_ET_B.xlsx
+Cahier_des_charges_ONCF*.docx
+Table_analytique_ONCF_v1.xlsx
+Dashboard_risque_actuel.xlsx
+Historique_pannes_ONCF.xlsx
+*.pbix
+table_de_corresp*.xlsx
+
+# Autoriser explicitement uniquement les données synthétiques
+!data/synthetic/*.xlsx
+
+# Modèle entraîné sur vraies données (contient potentiellement des infos dérivées sensibles)
+modele_xgboost_horizon_14j.joblib
+
+# === Fichiers techniques standards ===
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.env
+.venv/
+venv/
+*.log
+.DS_Store
+Thumbs.db
